@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Stanislave19/backend-course-2026-4/issues"
   },
-  "homepage": "https://github.com/Stanislave19/backend-course-2026-4#readme"
+  "homepage": "https://github.com/Stanislave19/backend-course-2026-4#readme",
+  "dependencies": {
+    "commander": "^15.0.0"
+  }
 }
