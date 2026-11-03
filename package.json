@@ -1,0 +1,19 @@
+{
+  "name": "backend-course-2026-4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stanislave19/backend-course-2026-4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Stanislave19/backend-course-2026-4/issues"
+  },
+  "homepage": "https://github.com/Stanislave19/backend-course-2026-4#readme"
+}
