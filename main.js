@@ -14,9 +14,26 @@ program
 program.parse();
 const options = program.opts();
 
-function sendJson(res, status, data) {
+function writeResponse(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
-  res.end(JSON.stringify(data, null, 2));
+  res.end(body);
+}
+
+function sendJson(res, status, data) {
+  const body = JSON.stringify(data, null, 2);
+
+  if (!options.output) {
+    writeResponse(res, status, body);
+    return;
+  }
+
+  fs.writeFile(options.output, body, (writeError) => {
+    if (writeError) {
+      writeResponse(res, 500, JSON.stringify({ error: 'Не вдалося записати відповідь у файл' }, null, 2));
+      return;
+    }
+    writeResponse(res, status, body);
+  });
 }
 
 function parseNdjson(text) {
@@ -39,7 +56,7 @@ fs.access(options.input, (error) => {
     process.exit(1);
   }
 
-    const server = http.createServer((req, res) => {
+  const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
 
     if (url.pathname !== '/') {
