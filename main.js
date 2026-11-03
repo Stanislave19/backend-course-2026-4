@@ -39,11 +39,20 @@ fs.access(options.input, (error) => {
     process.exit(1);
   }
 
-  const server = http.createServer((req, res) => {
+    const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
 
     if (url.pathname !== '/') {
       sendJson(res, 404, { error: 'Маршрут не знайдено' });
+      return;
+    }
+
+    const showCylinders = url.searchParams.get('cylinders') === 'true';
+    const maxMpgText = url.searchParams.get('max_mpg');
+    const maxMpg = Number(maxMpgText);
+
+    if (maxMpgText !== null && (maxMpgText === '' || Number.isNaN(maxMpg))) {
+      sendJson(res, 400, { error: 'Параметр max_mpg має бути числом' });
       return;
     }
 
@@ -61,10 +70,22 @@ fs.access(options.input, (error) => {
         return;
       }
 
-      const result = cars.map((car) => ({
-        model: car.model,
-        mpg: toNumber(car.mpg),
-      }));
+      let filtered = cars;
+      if (maxMpgText !== null) {
+        filtered = cars.filter((car) => {
+          const mpg = toNumber(car.mpg);
+          return mpg !== null && mpg < maxMpg;
+        });
+      }
+
+      const result = filtered.map((car) => {
+        const item = { model: car.model };
+        if (showCylinders) {
+          item.cyl = toNumber(car.cyl);
+        }
+        item.mpg = toNumber(car.mpg);
+        return item;
+      });
 
       sendJson(res, 200, result);
     });
