@@ -14,6 +14,25 @@ program
 program.parse();
 const options = program.opts();
 
+function sendJson(res, status, data) {
+  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify(data, null, 2));
+}
+
+function parseNdjson(text) {
+  return text
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .map((line) => JSON.parse(line));
+}
+
+function toNumber(value) {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  return Number(value);
+}
+
 fs.access(options.input, (error) => {
   if (error) {
     console.error('Cannot find input file');
@@ -21,8 +40,34 @@ fs.access(options.input, (error) => {
   }
 
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ message: 'Сервер працює' }));
+    const url = new URL(req.url, 'http://localhost');
+
+    if (url.pathname !== '/') {
+      sendJson(res, 404, { error: 'Маршрут не знайдено' });
+      return;
+    }
+
+    fs.readFile(options.input, 'utf8', (readError, text) => {
+      if (readError) {
+        sendJson(res, 500, { error: 'Не вдалося прочитати файл даних' });
+        return;
+      }
+
+      let cars;
+      try {
+        cars = parseNdjson(text);
+      } catch {
+        sendJson(res, 500, { error: 'Файл даних пошкоджено' });
+        return;
+      }
+
+      const result = cars.map((car) => ({
+        model: car.model,
+        mpg: toNumber(car.mpg),
+      }));
+
+      sendJson(res, 200, result);
+    });
   });
 
   server.listen(options.port, options.host, () => {
