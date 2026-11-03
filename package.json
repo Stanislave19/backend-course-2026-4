@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
-  "scripts": {},
+  "scripts": {
+    "start": "node main.js -i mtcars.json -h localhost -p 3000",
+    "dev": "node --watch main.js -i mtcars.json -h localhost -p 3000"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Stanislave19/backend-course-2026-4.git"
